@@ -1,0 +1,82 @@
+{
+  "name": "@questlog/desktop",
+  "version": "0.1.0",
+  "description": "Questlog Desktop Application",
+  "private": true,
+  "main": "dist/main.js",
+  "scripts": {
+    "dev": "echo 'Desktop app development not implemented yet'",
+    "dev:renderer": "vite",
+    "dev:main": "tsc -p tsconfig.main.json && electron .",
+    "build": "echo 'Desktop app build not implemented yet'",
+    "build:renderer": "echo 'Desktop renderer build not implemented yet'",
+    "build:main": "echo 'Desktop main build not implemented yet'",
+    "dist": "echo 'Desktop distribution not implemented yet'",
+    "dist:mac": "echo 'Desktop macOS distribution not implemented yet'",
+    "dist:win": "echo 'Desktop Windows distribution not implemented yet'",
+    "dist:linux": "echo 'Desktop Linux distribution not implemented yet'",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "lint": "echo 'No TypeScript files to lint in desktop app yet'",
+    "lint:fix": "echo 'No TypeScript files to lint in desktop app yet'",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.14.0",
+    "zustand": "^4.4.0",
+    "@headlessui/react": "^1.7.15",
+    "@heroicons/react": "^2.0.18",
+    "electron-store": "^8.1.0",
+    "electron-updater": "^6.1.7",
+    "@questlog/shared": "*",
+    "@questlog/ui": "*",
+    "@questlog/types": "*"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@vitejs/plugin-react": "^4.0.3",
+    "autoprefixer": "^10.4.14",
+    "concurrently": "^8.2.0",
+    "electron": "^25.3.0",
+    "electron-builder": "^24.6.4",
+    "eslint": "^8.45.0",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.3",
+    "postcss": "^8.4.27",
+    "tailwindcss": "^3.3.3",
+    "typescript": "^5.3.3",
+    "vite": "^4.4.5",
+    "vitest": "^0.34.0",
+    "@vitest/ui": "^0.34.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/jest-dom": "^6.1.0",
+    "@testing-library/user-event": "^14.4.3"
+  },
+  "build": {
+    "appId": "com.noetic.questlog",
+    "productName": "Questlog",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "node_modules/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+} 
