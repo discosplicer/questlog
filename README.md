@@ -78,9 +78,36 @@ npm test
 ```
 
 ### Local Database & Redis (Docker)
-```sh
-docker-compose up -d
-```
+
+1. **Start PostgreSQL and Redis:**
+   ```sh
+   docker-compose up -d
+   ```
+   This will start PostgreSQL (on port 5433) and Redis (on port 6379) in Docker containers.
+
+2. **Database Initialization:**
+   - The PostgreSQL container automatically runs the initialization script at `services/quest-service/prisma/init.sql` on first startup. This sets up tables and sample data.
+   - If you need to reset the database, stop the container, delete the `postgres_data` Docker volume, and restart.
+
+3. **Environment Variables:**
+   - Copy `.env.example` to `.env` in the project root and in each service as needed.
+   - The default database connection string is:
+     ```
+     DATABASE_URL=postgresql://questlog:questlog_dev_password@localhost:5433/questlog
+     ```
+   - Update the password/port if you change them in `docker-compose.yml`.
+
+4. **Connecting to the Database:**
+   - You can connect using any PostgreSQL client (e.g., psql, TablePlus, pgAdmin) with:
+     - Host: `localhost`
+     - Port: `5433`
+     - User: `questlog`
+     - Password: `questlog_dev_password`
+     - Database: `questlog`
+
+5. **Prisma ORM:**
+   - The Prisma schema is defined in `services/quest-service/prisma/schema.prisma` and matches the SQL schema.
+   - Migrations are not yet used; the schema is managed by the SQL script. You can baseline Prisma migrations later if needed.
 
 ---
 

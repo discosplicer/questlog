@@ -4,6 +4,8 @@
 
 Questlog uses PostgreSQL as the primary database with Redis for caching and session storage. The database design follows normalized relational principles while optimizing for the specific requirements of gamified task management and AI-powered features.
 
+**Current Status**: ✅ **IMPLEMENTED** - Database schema is production-ready and deployed via Docker containers.
+
 ## Database Schema
 
 ### Core Tables
@@ -11,125 +13,117 @@ Questlog uses PostgreSQL as the primary database with Redis for caching and sess
 #### Users Table
 ```sql
 CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email VARCHAR(255) UNIQUE NOT NULL,
-    username VARCHAR(50) UNIQUE NOT NULL,
+    username VARCHAR(30) UNIQUE NOT NULL,
     display_name VARCHAR(100),
-    avatar_url TEXT,
-    timezone VARCHAR(50) DEFAULT 'UTC',
-    language VARCHAR(10) DEFAULT 'en',
+    avatar VARCHAR(500),
+    level INTEGER DEFAULT 1,
+    experience_points INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    last_login_at TIMESTAMP WITH TIME ZONE,
-    is_active BOOLEAN DEFAULT true,
-    subscription_tier VARCHAR(20) DEFAULT 'free' CHECK (subscription_tier IN ('free', 'premium', 'enterprise')),
-    subscription_expires_at TIMESTAMP WITH TIME ZONE,
-    email_verified BOOLEAN DEFAULT false,
-    email_verification_token UUID,
-    password_reset_token UUID,
-    password_reset_expires_at TIMESTAMP WITH TIME ZONE,
-    preferences JSONB DEFAULT '{}',
-    metadata JSONB DEFAULT '{}'
+    last_login_at TIMESTAMP WITH TIME ZONE
 );
 
 -- Indexes
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_username ON users(username);
-CREATE INDEX idx_users_subscription_tier ON users(subscription_tier);
-CREATE INDEX idx_users_created_at ON users(created_at);
-CREATE INDEX idx_users_last_login_at ON users(last_login_at);
 ```
+
+**Gamification Features**:
+- `level`: User's current level (starts at 1)
+- `experience_points`: Accumulated XP from completed quests
+- `avatar`: URL to user's profile picture
 
 #### Quests Table
 ```sql
 CREATE TABLE quests (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     title VARCHAR(255) NOT NULL,
     description TEXT,
-    category_id UUID REFERENCES categories(id),
-    project_id UUID REFERENCES projects(id),
-    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('draft', 'active', 'in_progress', 'completed', 'paused', 'overdue', 'deleted')),
-    priority INTEGER DEFAULT 0 CHECK (priority >= 0 AND priority <= 5),
-    due_date TIMESTAMP WITH TIME ZONE,
-    estimated_time_minutes INTEGER CHECK (estimated_time_minutes > 0),
-    actual_time_minutes INTEGER DEFAULT 0 CHECK (actual_time_minutes >= 0),
-    progress_percentage INTEGER DEFAULT 0 CHECK (progress_percentage >= 0 AND progress_percentage <= 100),
-    complexity VARCHAR(20) DEFAULT 'simple' CHECK (complexity IN ('simple', 'moderate', 'complex', 'expert')),
-    recurrence_pattern JSONB,
-    parent_quest_id UUID REFERENCES quests(id),
-    ai_priority_score DECIMAL(5,2),
+    difficulty VARCHAR(20) NOT NULL CHECK (difficulty IN ('EASY', 'MEDIUM', 'HARD', 'EPIC')),
+    status VARCHAR(20) NOT NULL DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'ACTIVE', 'IN_PROGRESS', 'COMPLETED', 'ARCHIVED')),
+    estimated_duration INTEGER NOT NULL CHECK (estimated_duration > 0 AND estimated_duration <= 1440),
+    actual_duration INTEGER,
+    priority VARCHAR(20) NOT NULL DEFAULT 'MEDIUM' CHECK (priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT')),
+    experience_points INTEGER DEFAULT 0,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    category_id UUID REFERENCES quest_categories(id) ON DELETE SET NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    completed_at TIMESTAMP WITH TIME ZONE,
-    deleted_at TIMESTAMP WITH TIME ZONE,
-    metadata JSONB DEFAULT '{}'
+    completed_at TIMESTAMP WITH TIME ZONE
 );
 
 -- Indexes
 CREATE INDEX idx_quests_user_id ON quests(user_id);
 CREATE INDEX idx_quests_status ON quests(status);
-CREATE INDEX idx_quests_category_id ON quests(category_id);
-CREATE INDEX idx_quests_project_id ON quests(project_id);
-CREATE INDEX idx_quests_due_date ON quests(due_date);
-CREATE INDEX idx_quests_priority ON quests(priority);
-CREATE INDEX idx_quests_parent_quest_id ON quests(parent_quest_id);
-CREATE INDEX idx_quests_ai_priority_score ON quests(ai_priority_score);
 CREATE INDEX idx_quests_created_at ON quests(created_at);
-CREATE INDEX idx_quests_completed_at ON quests(completed_at);
-
--- Composite indexes for common queries
-CREATE INDEX idx_quests_user_status ON quests(user_id, status);
-CREATE INDEX idx_quests_user_due_date ON quests(user_id, due_date);
-CREATE INDEX idx_quests_user_priority ON quests(user_id, priority);
-CREATE INDEX idx_quests_status_due_date ON quests(status, due_date);
+CREATE INDEX idx_quests_category_id ON quests(category_id);
 ```
 
-#### Categories Table
+**Gamification Features**:
+- `difficulty`: Quest difficulty level (EASY, MEDIUM, HARD, EPIC)
+- `experience_points`: XP awarded upon completion
+- `estimated_duration`: Time estimate in minutes (max 24 hours)
+- `actual_duration`: Actual time spent on quest
+- `priority`: Quest priority level (LOW, MEDIUM, HIGH, URGENT)
+
+#### Quest Categories Table
 ```sql
-CREATE TABLE categories (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+CREATE TABLE quest_categories (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(100) NOT NULL,
-    color VARCHAR(7) DEFAULT '#2563EB',
-    icon VARCHAR(50),
-    is_default BOOLEAN DEFAULT false,
-    sort_order INTEGER DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    metadata JSONB DEFAULT '{}'
-);
-
--- Indexes
-CREATE INDEX idx_categories_user_id ON categories(user_id);
-CREATE INDEX idx_categories_name ON categories(name);
-CREATE INDEX idx_categories_sort_order ON categories(sort_order);
-```
-
-#### Projects Table
-```sql
-CREATE TABLE projects (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    name VARCHAR(255) NOT NULL,
     description TEXT,
-    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'completed', 'paused', 'archived')),
-    start_date DATE,
-    end_date DATE,
-    progress_percentage INTEGER DEFAULT 0 CHECK (progress_percentage >= 0 AND progress_percentage <= 100),
-    color VARCHAR(7) DEFAULT '#6B7280',
-    icon VARCHAR(50),
+    color VARCHAR(7) DEFAULT '#3B82F6',
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    metadata JSONB DEFAULT '{}'
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Indexes
-CREATE INDEX idx_projects_user_id ON projects(user_id);
-CREATE INDEX idx_projects_status ON projects(status);
-CREATE INDEX idx_projects_start_date ON projects(start_date);
-CREATE INDEX idx_projects_end_date ON projects(end_date);
+CREATE INDEX idx_quest_categories_user_id ON quest_categories(user_id);
 ```
+
+**Features**:
+- `color`: Hex color code for category visualization
+- `description`: Optional category description
+- User-specific categories with cascade deletion
+
+#### Quest Steps Table
+```sql
+CREATE TABLE quest_steps (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    completed BOOLEAN DEFAULT FALSE,
+    order_index INTEGER NOT NULL,
+    quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indexes
+CREATE INDEX idx_quest_steps_quest_id ON quest_steps(quest_id);
+```
+
+**Features**:
+- `order_index`: Determines step sequence within quest
+- `completed`: Tracks individual step completion
+- Cascade deletion when quest is deleted
+
+#### Quest Tags Table (Many-to-Many)
+```sql
+CREATE TABLE quest_tags (
+    quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
+    tag_name VARCHAR(50) NOT NULL,
+    PRIMARY KEY (quest_id, tag_name)
+);
+```
+
+**Features**:
+- Simple tag system using tag names (not separate tag entities)
+- Many-to-many relationship between quests and tags
+- Cascade deletion when quest is deleted
 
 #### Tags Table
 ```sql
@@ -178,25 +172,83 @@ CREATE INDEX idx_quest_dependencies_prerequisite ON quest_dependencies(prerequis
 CREATE INDEX idx_quest_dependencies_type ON quest_dependencies(dependency_type);
 ```
 
-### Gamification Tables
+## Database Setup and Deployment
 
-#### User Profiles Table
-```sql
-CREATE TABLE user_profiles (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    level INTEGER DEFAULT 1 CHECK (level > 0),
-    experience_points INTEGER DEFAULT 0 CHECK (experience_points >= 0),
-    total_quests_completed INTEGER DEFAULT 0 CHECK (total_quests_completed >= 0),
-    current_streak_days INTEGER DEFAULT 0 CHECK (current_streak_days >= 0),
-    longest_streak_days INTEGER DEFAULT 0 CHECK (longest_streak_days >= 0),
-    total_streak_days INTEGER DEFAULT 0 CHECK (total_streak_days >= 0),
-    total_time_spent_minutes INTEGER DEFAULT 0 CHECK (total_time_spent_minutes >= 0),
-    average_completion_time_minutes DECIMAL(8,2) DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    metadata JSONB DEFAULT '{}'
-);
+### Docker Configuration
+The database is deployed using Docker Compose with the following services:
+
+```yaml
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: questlog-postgres
+    environment:
+      POSTGRES_DB: questlog
+      POSTGRES_USER: questlog
+      POSTGRES_PASSWORD: questlog_dev_password
+    ports:
+      - "5433:5432"  # Non-standard port to avoid conflicts
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./services/quest-service/prisma/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U questlog -d questlog"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: questlog-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+```
+
+### Database Initialization
+The database is automatically initialized with:
+- Complete schema creation
+- Performance indexes
+- Automatic `updated_at` triggers
+- Sample data for development
+
+### Connection Details
+- **Host**: `localhost`
+- **Port**: `5433`
+- **Database**: `questlog`
+- **User**: `questlog`
+- **Password**: `questlog_dev_password`
+
+### Prisma Integration
+The schema is managed through Prisma ORM with the schema file located at:
+`services/quest-service/prisma/schema.prisma`
+
+## Gamification Features
+
+The database schema includes built-in gamification features:
+
+### User Progression
+- **Level System**: Users start at level 1 and progress through levels
+- **Experience Points**: XP earned from completing quests
+- **Avatar Support**: User profile pictures
+
+### Quest Gamification
+- **Difficulty Levels**: EASY, MEDIUM, HARD, EPIC
+- **Experience Rewards**: Each quest awards XP upon completion
+- **Priority System**: LOW, MEDIUM, HIGH, URGENT priorities
+- **Time Tracking**: Estimated vs actual duration tracking
+
+### Quest Organization
+- **Categories**: User-defined quest categories with colors
+- **Tags**: Flexible tagging system for quest organization
+- **Steps**: Break down quests into manageable steps
 
 -- Indexes
 CREATE INDEX idx_user_profiles_user_id ON user_profiles(user_id);

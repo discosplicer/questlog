@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email            String   @unique @db.VarChar(255)
+  username         String   @unique @db.VarChar(30)
+  displayName      String?  @map("display_name") @db.VarChar(100)
+  avatar           String?  @db.VarChar(500)
+  level            Int      @default(1)
+  experiencePoints Int      @default(0) @map("experience_points")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  lastLoginAt      DateTime? @map("last_login_at") @db.Timestamptz(6)
+
+  // Relations
+  questCategories QuestCategory[]
+  quests          Quest[]
+
+  @@map("users")
+}
+
+model QuestCategory {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name        String   @db.VarChar(100)
+  description String?
+  color       String   @default("#3B82F6") @db.VarChar(7)
+  userId      String   @map("user_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quests Quest[]
+
+  @@map("quest_categories")
+}
+
+model Quest {
+  id               String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title            String   @db.VarChar(255)
+  description      String?
+  difficulty       QuestDifficulty
+  status           QuestStatus @default(DRAFT)
+  estimatedDuration Int     @map("estimated_duration")
+  actualDuration   Int?     @map("actual_duration")
+  priority         QuestPriority @default(MEDIUM)
+  experiencePoints Int      @default(0) @map("experience_points")
+  userId           String   @map("user_id") @db.Uuid
+  categoryId       String?  @map("category_id") @db.Uuid
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  completedAt      DateTime? @map("completed_at") @db.Timestamptz(6)
+
+  // Relations
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category  QuestCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  steps     QuestStep[]
+  tags      QuestTag[]
+
+  @@map("quests")
+}
+
+model QuestStep {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title       String   @db.VarChar(255)
+  description String?
+  completed   Boolean  @default(false)
+  orderIndex  Int      @map("order_index")
+  questId     String   @map("quest_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Relations
+  quest Quest @relation(fields: [questId], references: [id], onDelete: Cascade)
+
+  @@map("quest_steps")
+}
+
+model QuestTag {
+  questId  String @map("quest_id") @db.Uuid
+  tagName  String @map("tag_name") @db.VarChar(50)
+
+  // Relations
+  quest Quest @relation(fields: [questId], references: [id], onDelete: Cascade)
+
+  @@id([questId, tagName])
+  @@map("quest_tags")
+}
+
+enum QuestDifficulty {
+  EASY
+  MEDIUM
+  HARD
+  EPIC
+}
+
+enum QuestStatus {
+  DRAFT
+  ACTIVE
+  IN_PROGRESS
+  COMPLETED
+  ARCHIVED
+}
+
+enum QuestPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+} 
