@@ -1,0 +1,2 @@
+# questlog
+RestedXP for everything
