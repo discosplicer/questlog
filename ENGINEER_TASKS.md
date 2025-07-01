@@ -14,32 +14,6 @@ Questlog is a gamified task management application that transforms tasks into qu
 
 ## Current Sprint: Core Infrastructure (Next 2 Weeks)
 
-### Task 2: Set Up PostgreSQL Database Container
-**Priority**: Critical
-**Story Points**: 2
-**Estimated Time**: 4-6 hours
-
-**As a** developer, **I want** a PostgreSQL database running in Docker **so that** I can develop and test database operations locally.
-
-**Acceptance Criteria**:
-- [ ] Create `docker-compose.yml` with PostgreSQL service
-- [ ] Add database initialization script
-- [ ] Create `.env.example` with database connection variables
-- [ ] Document database connection process
-
-**Deliverables**:
-- Docker Compose configuration for PostgreSQL
-- Database initialization script
-- Environment variable template
-- Setup documentation
-
-**Definition of Done**:
-- `docker-compose up` starts PostgreSQL successfully
-- Database is accessible via connection string
-- Setup process is documented in README
-
----
-
 ### Task 3: Create Core Database Schema (Users Table)
 **Priority**: Critical
 **Story Points**: 3
@@ -64,124 +38,155 @@ Questlog is a gamified task management application that transforms tasks into qu
 - User table exists with proper constraints
 - Prisma client can perform basic CRUD operations
 
----
 
-### Task 4: Implement User Registration Endpoint
-**Priority**: High
-**Story Points**: 3
-**Estimated Time**: 6-8 hours
 
-**As a** developer, **I want** a user registration API endpoint **so that** users can create accounts.
-
-**Acceptance Criteria**:
-- [ ] Create POST `/auth/register` endpoint
-- [ ] Implement password hashing with bcrypt
-- [ ] Add email validation and uniqueness check
-- [ ] Return JWT token on successful registration
-- [ ] Add proper error handling for duplicate emails
-
-**Deliverables**:
-- Registration endpoint with validation
-- Password security implementation
-- JWT token generation
-- Error handling for common cases
-
-**Definition of Done**:
-- Users can register with valid email/password
-- Passwords are securely hashed
-- Duplicate emails are properly handled
-- JWT token is returned on success
-
----
-
-### Task 5: Create Basic Quest Table Schema
+### Task 4: Implement Basic Quest CRUD Operations
 **Priority**: High
 **Story Points**: 2
 **Estimated Time**: 4-6 hours
 
-**As a** developer, **I want** a quests table in the database **so that** I can store quest data.
+**As a** developer, **I want** basic quest CRUD operations **so that** users can manage their quests.
 
 **Acceptance Criteria**:
-- [ ] Add quests table to Prisma schema
-- [ ] Include core fields (id, title, description, user_id, status, created_at, updated_at)
-- [ ] Set up foreign key relationship to users table
-- [ ] Generate and run migration
+- [ ] Implement GET `/quests` to list user's quests
+- [ ] Implement POST `/quests` to create new quests
+- [ ] Implement PUT `/quests/:id` to update quests
+- [ ] Implement DELETE `/quests/:id` to delete quests
+- [ ] Add basic input validation for all endpoints
 
 **Deliverables**:
-- Updated Prisma schema with quests table
-- Database migration for quests table
-- Proper foreign key relationship
-- Quest model with validation
+- Complete quest CRUD API endpoints
+- Input validation with proper error responses
+- Database integration with Prisma
+- API documentation updates
 
 **Definition of Done**:
-- Migration runs successfully
-- Quests table exists with proper relationships
-- Prisma client can query quests with user relationships
+- All CRUD operations work with proper HTTP status codes
+- Input validation prevents invalid data
+- Database operations are successful
+- API is documented in Swagger
 
 ---
 
-### Task 6: Implement Quest Creation Endpoint
+### Task 5: Create Basic Quest Management UI
 **Priority**: High
+**Story Points**: 2
+**Estimated Time**: 4-6 hours
+
+**As a** developer, **I want** a basic quest management interface **so that** users can interact with their quests visually.
+
+**Acceptance Criteria**:
+- [ ] Create quest list view component
+- [ ] Add quest creation form
+- [ ] Implement quest editing functionality
+- [ ] Add quest deletion with confirmation
+- [ ] Style components with Tailwind CSS
+
+**Deliverables**:
+- Quest list component with create/edit/delete actions
+- Form components for quest input
+- Basic styling and responsive design
+- Integration with quest service API
+
+**Definition of Done**:
+- Users can view, create, edit, and delete quests
+- UI is responsive and accessible
+- Forms have proper validation
+- API integration works end-to-end
+
+---
+
+### Task 6: Implement User Authentication Flow
+**Priority**: Critical
 **Story Points**: 3
 **Estimated Time**: 6-8 hours
 
-**As a** developer, **I want** a quest creation API endpoint **so that** users can create new quests.
+**As a** developer, **I want** user authentication **so that** users can securely access their quests.
 
 **Acceptance Criteria**:
-- [ ] Create POST `/quests` endpoint
-- [ ] Add JWT authentication middleware
-- [ ] Implement quest creation with user association
-- [ ] Add input validation for title and description
-- [ ] Return created quest with proper status codes
+- [ ] Create login/register forms in web app
+- [ ] Implement JWT token storage and management
+- [ ] Add protected routes for authenticated users
+- [ ] Create logout functionality
+- [ ] Add authentication state management
 
 **Deliverables**:
-- Quest creation endpoint with authentication
-- Input validation and error handling
-- User association for quests
-- Proper HTTP status codes
+- Login and registration forms
+- JWT token handling and storage
+- Protected route implementation
+- Authentication state management
+- Logout functionality
 
 **Definition of Done**:
-- Authenticated users can create quests
-- Input validation prevents invalid data
-- Quests are properly associated with users
-- API returns appropriate success/error responses
+- Users can register and login successfully
+- Protected routes require authentication
+- JWT tokens are properly managed
+- Logout clears user session
+
+---
+
+### Task 7: Add Basic Quest Status Management
+**Priority**: Medium
+**Story Points**: 2
+**Estimated Time**: 4-6 hours
+
+**As a** developer, **I want** quest status management **so that** users can track quest progress.
+
+**Acceptance Criteria**:
+- [ ] Add status field to quest model (TODO, IN_PROGRESS, COMPLETED)
+- [ ] Implement status update endpoint
+- [ ] Add status change UI components
+- [ ] Create status-based quest filtering
+- [ ] Add visual status indicators
+
+**Deliverables**:
+- Quest status model and API updates
+- Status change UI components
+- Status-based filtering functionality
+- Visual status indicators
+
+**Definition of Done**:
+- Users can change quest status
+- Status changes are persisted
+- UI shows current status clearly
+- Filtering works by status
 
 ---
 
 ## Success Criteria for Current Sprint
 
 ### Technical Deliverables
-- [ ] PostgreSQL database running in Docker
-- [ ] Users table with authentication support
-- [ ] User registration with JWT tokens
-- [ ] Quests table with user relationships
-- [ ] Quest creation endpoint with authentication
+- [ ] Core database schema with users and quests tables
+- [ ] Complete quest CRUD API operations
+- [ ] Basic quest management UI
+- [ ] User authentication flow
+- [ ] Quest status management system
 
 ### Quality Gates
 - [ ] All code passes linting and formatting
 - [ ] Database migrations run successfully
 - [ ] API endpoints return proper responses
 - [ ] Authentication flow is secure
-- [ ] Documentation is updated
+- [ ] UI components are responsive and accessible
 
 ### Ready for Next Sprint
-- [ ] Database schema supports basic features
+- [ ] Users can create and manage quests end-to-end
 - [ ] Authentication system is functional
-- [ ] Quest creation works end-to-end
+- [ ] Basic quest status tracking works
 - [ ] Development environment is stable
-- [ ] Team can efficiently add new features
+- [ ] Team can efficiently add gamification features
 
 ---
 
 ## Notes for the Engineer
 
-1. **Focus on MVP**: These tasks establish the core data and authentication foundation
-2. **Security First**: Implement proper authentication and data validation
-3. **Documentation**: Update docs/ folder as you build
-4. **Testing**: Write basic tests for critical functionality
-5. **Agile Approach**: Each task should be completable in one pull request
+1. **Agile Focus**: Each task is designed to be completed in one pull request
+2. **User-Centric**: Focus on delivering value to users quickly
+3. **Security First**: Implement proper authentication and data validation
+4. **Documentation**: Update docs/ folder as you build
+5. **Testing**: Write basic tests for critical functionality
 
-**Next Sprint Preview**: Once these core tasks are complete, the next sprint will focus on quest listing, updating, and the React frontend for quest management.
+**Next Sprint Preview**: Once these core tasks are complete, the next sprint will focus on AI-powered prioritization, gamification features (XP, levels), and advanced quest management.
 
 Remember: You're building the foundation for a tool that will help people overcome executive function challenges. Focus on creating a solid, secure, and scalable base that can support the gamification and AI features to come.
 

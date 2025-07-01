@@ -25,4 +25,32 @@
 - Linting passes on all files
 - Developer can clone and run `npm install` successfully
 
+**Status**: ✅ Completed
+
+---
+
+## Task 2: Set Up PostgreSQL Database Container
+**Priority**: Critical
+**Story Points**: 2
+**Estimated Time**: 4-6 hours
+
+**As a** developer, **I want** a PostgreSQL database running in Docker **so that** I can develop and test database operations locally.
+
+**Acceptance Criteria**:
+- [x] Create `docker-compose.yml` with PostgreSQL service
+- [x] Add database initialization script
+- [x] Create `.env.example` with database connection variables
+- [x] Document database connection process
+
+**Deliverables**:
+- Docker Compose configuration for PostgreSQL
+- Database initialization script
+- Environment variable template
+- Setup documentation
+
+**Definition of Done**:
+- `docker-compose up` starts PostgreSQL successfully
+- Database is accessible via connection string
+- Setup process is documented in README
+
 **Status**: ✅ Completed 
