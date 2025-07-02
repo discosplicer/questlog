@@ -1,11 +1,12 @@
+/* eslint-disable prettier/prettier */
 import { config } from 'dotenv';
 import { PrismaClient } from '@prisma/client';
-import { beforeAll, afterAll } from 'vitest';
+import { beforeAll, afterAll, beforeEach } from 'vitest';
 
 // Load test environment variables
 config({ path: '.env.test' });
 
-// Create a test Prisma client - use main database for now
+// Create a test Prisma client - use test database
 export const testPrisma = new PrismaClient({
   datasources: {
     db: {
@@ -16,36 +17,55 @@ export const testPrisma = new PrismaClient({
 
 // Global test setup
 beforeAll(async () => {
+  console.log('Setting up test database...');
   // Ensure test database is clean
   await cleanupTestDatabase();
 });
 
 // Global test teardown
 afterAll(async () => {
+  console.log('Cleaning up test database...');
+  await cleanupTestDatabase();
   await testPrisma.$disconnect();
 });
 
+// Clean up between each test to prevent conflicts
+beforeEach(async () => {
+  await cleanupTestDatabase();
+  // Add a small delay to ensure cleanup is complete
+  await new Promise(resolve => setTimeout(resolve, 10));
+});
+
 // Clean up test database
-export async function cleanupTestDatabase() {
+async function cleanupTestDatabase() {
   try {
-    // Delete all test data in reverse order of dependencies
-    await testPrisma.questTag.deleteMany();
-    await testPrisma.questStep.deleteMany();
-    await testPrisma.quest.deleteMany();
-    await testPrisma.questCategory.deleteMany();
-    await testPrisma.user.deleteMany();
+    console.log('Cleaning up test database tables...');
+    
+    // Use a transaction to ensure atomic cleanup
+    await testPrisma.$transaction(async (tx) => {
+      // Delete in order to respect foreign key constraints
+      await tx.questTag.deleteMany({});
+      await tx.questStep.deleteMany({});
+      await tx.quest.deleteMany({});
+      await tx.user.deleteMany({});
+      await tx.questCategory.deleteMany({});
+    });
+    
+    console.log('Test database cleanup completed successfully');
   } catch (error) {
-    // Log error but don't fail the test setup
-    console.warn('Warning: Could not clean up test database:', error);
+    console.error('Error cleaning up test database:', error);
+    throw error;
   }
 }
 
 // Helper to generate unique test data
-export function generateTestUser(overrides: Partial<{
-  email: string;
-  username: string;
-  displayName: string;
-}> = {}) {
+export function generateTestUser(
+  overrides: Partial<{
+    email: string;
+    username: string;
+    displayName: string;
+  }> = {}
+) {
   const timestamp = Date.now();
   return {
     email: overrides.email || `test-${timestamp}@example.com`,
@@ -53,4 +73,4 @@ export function generateTestUser(overrides: Partial<{
     displayName: overrides.displayName || `Test User ${timestamp}`,
     password: 'SecurePass123',
   };
-} 
+}

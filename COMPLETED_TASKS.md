@@ -53,4 +53,32 @@
 - Database is accessible via connection string
 - Setup process is documented in README
 
-**Status**: ✅ Completed 
+**Status**: ✅ Completed
+
+---
+
+## Task 3: Create Core Database Schema (Users Table)
+**Priority**: Critical
+**Story Points**: 3
+**Estimated Time**: 6-8 hours
+
+**As a** developer, **I want** a users table in the database **so that** I can store user authentication data.
+
+**Acceptance Criteria**:
+- [x] Create Prisma schema with users table
+- [x] Add essential user fields (id, email, password_hash, created_at, updated_at)
+- [x] Generate and run initial migration
+- [x] Add basic user model validation
+
+**Deliverables**:
+- Prisma schema with users table
+- Database migration file
+- User model with validation
+- Connection setup in quest-service
+
+**Definition of Done**:
+- Migration runs successfully
+- User table exists with proper constraints
+- Prisma client can perform basic CRUD operations
+
+**Status**: ✅ Completed

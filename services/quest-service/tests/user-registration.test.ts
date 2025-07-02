@@ -1,11 +1,6 @@
-import { test, expect, beforeEach } from 'vitest';
+import { test, expect } from 'vitest';
 import { buildServer } from '../src/index';
-import { cleanupTestDatabase, generateTestUser } from './setup';
-
-// Clean up before each test
-beforeEach(async () => {
-  await cleanupTestDatabase();
-});
+import { generateTestUser } from './setup';
 
 test('POST /users should create a new user', async () => {
   const server = await buildServer();
@@ -34,11 +29,13 @@ test('POST /users should return 409 for duplicate email', async () => {
   const testUser = generateTestUser();
 
   // Create first user
-  await server.inject({
+  const firstResponse = await server.inject({
     method: 'POST',
     url: '/users',
     payload: testUser,
   });
+
+  expect(firstResponse.statusCode).toBe(201);
 
   // Try to create second user with same email
   const response = await server.inject({
@@ -62,11 +59,13 @@ test('POST /users should return 409 for duplicate username', async () => {
   const testUser = generateTestUser();
 
   // Create first user
-  await server.inject({
+  const firstResponse = await server.inject({
     method: 'POST',
     url: '/users',
     payload: testUser,
   });
+
+  expect(firstResponse.statusCode).toBe(201);
 
   // Try to create second user with same username
   const response = await server.inject({

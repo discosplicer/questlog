@@ -5,5 +5,7 @@ export default defineConfig({
     environment: 'node',
     setupFiles: ['./tests/setup.ts'],
     testTimeout: 10000,
+    isolate: true,
+    threads: false, // Run tests in a single thread to avoid DB race conditions
   },
 }); 

@@ -1,3 +1,6 @@
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 -- CreateEnum
 CREATE TYPE "QuestDifficulty" AS ENUM ('EASY', 'MEDIUM', 'HARD', 'EPIC');
 
@@ -14,6 +17,7 @@ CREATE TABLE "users" (
     "username" VARCHAR(30) NOT NULL,
     "display_name" VARCHAR(100),
     "avatar" VARCHAR(500),
+    "password_hash" VARCHAR(255),
     "level" INTEGER NOT NULL DEFAULT 1,
     "experience_points" INTEGER NOT NULL DEFAULT 0,
     "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,

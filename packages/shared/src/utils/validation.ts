@@ -98,11 +98,14 @@ export const validateQuestData = (data: unknown) => {
 
 /**
  * Sanitizes user input to prevent XSS
+ * Removes <script>...</script> blocks (case-insensitive, multiline, with attributes) and all < and > characters.
  */
 export const sanitizeInput = (input: string): string => {
-  return input
-    .replace(/[<>]/g, '') // Remove < and >
-    .trim();
+  // Remove <script ...>...</script> blocks (case-insensitive, multiline, with attributes)
+  let sanitized = input.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+  // Remove all < and >
+  sanitized = sanitized.replace(/[<>]/g, '');
+  return sanitized.trim();
 };
 
 /**
