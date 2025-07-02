@@ -82,3 +82,33 @@
 - Prisma client can perform basic CRUD operations
 
 **Status**: ✅ Completed
+
+---
+
+## Task 4: Create Quest Database Schema and Migration
+**Priority**: Critical
+**Story Points**: 2
+**Estimated Time**: 4-6 hours
+
+**As a** developer, **I want** a quests table in the database **so that** I can store user quest data.
+
+**Acceptance Criteria**:
+- [x] Add quests table to Prisma schema with essential fields
+- [x] Include fields: id, title, description, status, priority, due_date, user_id, created_at, updated_at
+- [x] Generate and run migration for quests table
+- [x] Add foreign key relationship to users table
+- [x] Add basic quest model validation
+
+**Deliverables**:
+- Updated Prisma schema with quests table
+- Database migration file
+- Quest model with validation
+- Proper foreign key relationships
+
+**Definition of Done**:
+- Migration runs successfully
+- Quest table exists with proper constraints
+- Foreign key relationship works correctly
+- Prisma client can perform basic quest operations
+
+**Status**: ✅ Completed

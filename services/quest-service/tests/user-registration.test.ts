@@ -100,8 +100,9 @@ test('POST /users should return 400 for invalid email', async () => {
   expect(response.statusCode).toBe(400);
   const result = JSON.parse(response.payload);
   expect(result.success).toBe(false);
-  expect(result.error).toBe('Validation error');
-  expect(result.details).toBeDefined();
+  expect(result.error.message).toBe('Invalid request body');
+  expect(result.error.code).toBe('VALIDATION_ERROR');
+  expect(result.error.field).toBe('email');
 });
 
 test('POST /users should return 400 for weak password', async () => {
@@ -120,8 +121,9 @@ test('POST /users should return 400 for weak password', async () => {
   expect(response.statusCode).toBe(400);
   const result = JSON.parse(response.payload);
   expect(result.success).toBe(false);
-  expect(result.error).toBe('Validation error');
-  expect(result.details).toBeDefined();
+  expect(result.error.message).toBe('Invalid request body');
+  expect(result.error.code).toBe('VALIDATION_ERROR');
+  expect(result.error.field).toBe('password');
 });
 
 test('POST /users should return 400 for invalid username', async () => {
@@ -140,8 +142,9 @@ test('POST /users should return 400 for invalid username', async () => {
   expect(response.statusCode).toBe(400);
   const result = JSON.parse(response.payload);
   expect(result.success).toBe(false);
-  expect(result.error).toBe('Validation error');
-  expect(result.details).toBeDefined();
+  expect(result.error.message).toBe('Invalid request body');
+  expect(result.error.code).toBe('VALIDATION_ERROR');
+  expect(result.error.field).toBe('username');
 });
 
 test('POST /users should create user with optional displayName', async () => {

@@ -56,33 +56,27 @@ CREATE TABLE quests (
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     description TEXT,
-    category_id UUID REFERENCES categories(id),
-    project_id UUID REFERENCES projects(id),
-    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('draft', 'active', 'in_progress', 'completed', 'paused', 'overdue', 'deleted')),
-    priority INTEGER DEFAULT 0,
-    due_date TIMESTAMP WITH TIME ZONE,
-    estimated_time_minutes INTEGER,
-    actual_time_minutes INTEGER,
-    progress_percentage INTEGER DEFAULT 0 CHECK (progress_percentage >= 0 AND progress_percentage <= 100),
-    complexity VARCHAR(20) DEFAULT 'simple' CHECK (complexity IN ('simple', 'moderate', 'complex', 'expert')),
-    recurrence_pattern JSONB,
-    parent_quest_id UUID REFERENCES quests(id),
+    difficulty VARCHAR(10) NOT NULL CHECK (difficulty IN ('EASY', 'MEDIUM', 'HARD', 'EPIC')),
+    status VARCHAR(20) DEFAULT 'DRAFT' CHECK (status IN ('DRAFT', 'ACTIVE', 'IN_PROGRESS', 'COMPLETED', 'ARCHIVED')),
+    estimated_duration INTEGER NOT NULL,
+    actual_duration INTEGER,
+    priority VARCHAR(10) DEFAULT 'MEDIUM' CHECK (priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT')),
+    experience_points INTEGER DEFAULT 0,
+    category_id UUID REFERENCES quest_categories(id) ON UPDATE NO ACTION,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    completed_at TIMESTAMP WITH TIME ZONE,
-    deleted_at TIMESTAMP WITH TIME ZONE
+    completed_at TIMESTAMP WITH TIME ZONE
 );
 ```
 
-#### Categories Table
+#### Quest Categories Table
 ```sql
-CREATE TABLE categories (
+CREATE TABLE quest_categories (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
-    color VARCHAR(7) DEFAULT '#2563EB',
-    icon VARCHAR(50),
-    is_default BOOLEAN DEFAULT false,
+    description TEXT,
+    color VARCHAR(7) DEFAULT '#3B82F6',
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE ON UPDATE NO ACTION,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -104,23 +98,26 @@ CREATE TABLE projects (
 );
 ```
 
-#### Tags Table
+#### Quest Tags Table
 ```sql
-CREATE TABLE tags (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    name VARCHAR(50) NOT NULL,
-    color VARCHAR(7) DEFAULT '#6B7280',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+CREATE TABLE quest_tags (
+    quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE ON UPDATE NO ACTION,
+    tag_name VARCHAR(50) NOT NULL,
+    PRIMARY KEY (quest_id, tag_name)
 );
 ```
 
-#### Quest Tags Table (Many-to-Many)
+#### Quest Steps Table
 ```sql
-CREATE TABLE quest_tags (
-    quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE,
-    tag_id UUID NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
-    PRIMARY KEY (quest_id, tag_id)
+CREATE TABLE quest_steps (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    completed BOOLEAN DEFAULT false,
+    order_index INTEGER NOT NULL,
+    quest_id UUID NOT NULL REFERENCES quests(id) ON DELETE CASCADE ON UPDATE NO ACTION,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 ```
 

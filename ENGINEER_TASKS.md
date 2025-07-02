@@ -14,177 +14,126 @@ Questlog is a gamified task management application that transforms tasks into qu
 
 ## Current Sprint: Core Infrastructure (Next 2 Weeks)
 
-### Task 4: Create Quest Database Schema and Migration
+### Task 5: Implement Quest CRUD API Endpoints
 **Priority**: Critical
 **Story Points**: 2
 **Estimated Time**: 4-6 hours
 
-**As a** developer, **I want** a quests table in the database **so that** I can store user quest data.
-
-**Acceptance Criteria**:
-- [ ] Add quests table to Prisma schema with essential fields
-- [ ] Include fields: id, title, description, status, priority, due_date, user_id, created_at, updated_at
-- [ ] Generate and run migration for quests table
-- [ ] Add foreign key relationship to users table
-- [ ] Add basic quest model validation
-
-**Deliverables**:
-- Updated Prisma schema with quests table
-- Database migration file
-- Quest model with validation
-- Proper foreign key relationships
-
-**Definition of Done**:
-- Migration runs successfully
-- Quest table exists with proper constraints
-- Foreign key relationship works correctly
-- Prisma client can perform basic quest operations
-
----
-
-### Task 5: Implement Basic Quest CRUD Operations
-**Priority**: High
-**Story Points**: 2
-**Estimated Time**: 4-6 hours
-
-**As a** developer, **I want** basic quest CRUD operations **so that** users can manage their quests.
+**As a** developer, **I want** to implement and test quest CRUD endpoints **so that** users can manage their quests via the API.
 
 **Acceptance Criteria**:
 - [ ] Implement GET `/quests` to list user's quests
 - [ ] Implement POST `/quests` to create new quests
 - [ ] Implement PUT `/quests/:id` to update quests
 - [ ] Implement DELETE `/quests/:id` to delete quests
-- [ ] Add basic input validation for all endpoints
+- [ ] Add input validation and error handling
 
 **Deliverables**:
-- Complete quest CRUD API endpoints
-- Input validation with proper error responses
-- Database integration with Prisma
+- CRUD endpoints in quest-service
+- Input validation and error responses
 - API documentation updates
 
 **Definition of Done**:
-- All CRUD operations work with proper HTTP status codes
+- All endpoints work with proper HTTP status codes
 - Input validation prevents invalid data
-- Database operations are successful
 - API is documented in Swagger
 
 ---
 
-### Task 5: Create Basic Quest Management UI
+### Task 6: Build Quest Management UI (List, Create, Edit, Delete)
 **Priority**: High
 **Story Points**: 2
 **Estimated Time**: 4-6 hours
 
-**As a** developer, **I want** a basic quest management interface **so that** users can interact with their quests visually.
+**As a** developer, **I want** a basic quest management UI **so that** users can view, create, edit, and delete quests.
 
 **Acceptance Criteria**:
 - [ ] Create quest list view component
 - [ ] Add quest creation form
-- [ ] Implement quest editing functionality
-- [ ] Add quest deletion with confirmation
-- [ ] Style components with Tailwind CSS
+- [ ] Implement quest editing and deletion
+- [ ] Integrate with quest-service API
+- [ ] Style with Tailwind CSS
 
 **Deliverables**:
-- Quest list component with create/edit/delete actions
-- Form components for quest input
-- Basic styling and responsive design
-- Integration with quest service API
+- Quest list and form components
+- API integration
+- Responsive, accessible UI
 
 **Definition of Done**:
-- Users can view, create, edit, and delete quests
+- Users can manage quests visually
 - UI is responsive and accessible
-- Forms have proper validation
 - API integration works end-to-end
 
 ---
 
-### Task 6: Set Up Authentication Service Infrastructure
+### Task 7: Set Up Authentication Service with JWT
 **Priority**: Critical
 **Story Points**: 2
 **Estimated Time**: 4-6 hours
 
-**As a** developer, **I want** authentication service infrastructure **so that** I can implement secure user authentication.
+**As a** developer, **I want** to set up the authentication service **so that** users can securely register and log in.
 
 **Acceptance Criteria**:
-- [ ] Set up auth-service with Fastify framework
-- [ ] Configure JWT token generation and validation
-- [ ] Implement password hashing with bcrypt
+- [ ] Set up Fastify-based auth-service
+- [ ] Implement JWT token generation/validation
+- [ ] Add password hashing with bcrypt
 - [ ] Create basic auth middleware
-- [ ] Add environment configuration for auth secrets
+- [ ] Add environment config for secrets
 
 **Deliverables**:
-- Auth service with Fastify setup
-- JWT token utilities
-- Password hashing implementation
-- Auth middleware for protected routes
+- Auth service with JWT and bcrypt
+- Middleware for protected routes
 - Environment configuration
 
 **Definition of Done**:
-- Auth service starts successfully
-- JWT tokens can be generated and validated
+- Auth service starts and issues tokens
 - Password hashing works securely
-- Middleware can protect routes
-- Environment variables are properly configured
+- Middleware protects routes
 
 ---
 
-### Task 7: Create Basic Quest Management UI Components
+### Task 8: Set Up AI Service Skeleton (FastAPI)
 **Priority**: High
 **Story Points**: 2
 **Estimated Time**: 4-6 hours
 
-**As a** developer, **I want** basic quest management UI components **so that** users can interact with their quests visually.
+**As a** developer, **I want** a basic AI service skeleton **so that** we can begin integrating AI-powered features.
 
 **Acceptance Criteria**:
-- [ ] Create QuestCard component for displaying quests
-- [ ] Build quest creation form component
-- [ ] Implement quest list view component
-- [ ] Add basic styling with Tailwind CSS
-- [ ] Create responsive layout for quest management
+- [ ] Set up Python FastAPI service
+- [ ] Add health check endpoint
+- [ ] Configure environment for AI dependencies
+- [ ] Add placeholder for OpenAI/Anthropic integration
 
 **Deliverables**:
-- QuestCard component with proper styling
-- Quest creation form component
-- Quest list view component
-- Responsive design implementation
-- Basic component integration
+- FastAPI service with health check
+- Environment config for AI APIs
+- Placeholder for future AI logic
 
 **Definition of Done**:
-- Components render correctly with proper styling
-- Forms have proper validation and error handling
-- Layout is responsive on different screen sizes
-- Components can be easily integrated into pages
-- All components follow design system guidelines
+- Service starts and health check passes
+- Environment variables are loaded
 
 ---
 
-### Task 8: Set Up AI Service Infrastructure
+### Task 9: Document Quest API and Data Model
 **Priority**: High
-**Story Points**: 2
-**Estimated Time**: 4-6 hours
+**Story Points**: 1
+**Estimated Time**: 2-3 hours
 
-**As a** developer, **I want** AI service infrastructure **so that** I can implement AI-powered quest prioritization.
+**As a** developer, **I want** up-to-date documentation for the quest API and data model **so that** developers can easily understand and use the system.
 
 **Acceptance Criteria**:
-- [ ] Set up Python FastAPI service structure
-- [ ] Configure environment for AI service dependencies
-- [ ] Create basic health check endpoint
-- [ ] Set up OpenAI/Anthropic API integration
-- [ ] Add basic request/response models
+- [ ] Update API documentation in `docs/technical/architecture/api-design.md`
+- [ ] Document quest data model in `docs/data/models.md`
+- [ ] Ensure all new endpoints and fields are described
 
 **Deliverables**:
-- AI service with FastAPI setup
-- Environment configuration for AI APIs
-- Health check endpoint
-- Basic API integration setup
-- Request/response model definitions
+- Updated API and data model docs
 
 **Definition of Done**:
-- AI service starts successfully
-- Health check endpoint responds correctly
-- Environment variables are properly configured
-- API integrations are set up (no hardcoded keys)
-- Service can handle basic requests
+- Documentation is clear, accurate, and up to date
+- Docs reviewed by at least one other engineer
 
 ---
 

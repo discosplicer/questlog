@@ -391,7 +391,8 @@ test('Database constraints should be enforced', async () => {
   expect(createResponse.statusCode).toBe(400);
   const result = JSON.parse(createResponse.payload);
   expect(result.success).toBe(false);
-  expect(result.error).toBe('Validation error');
+  expect(result.error.message).toBe('Invalid request body');
+  expect(result.error.code).toBe('VALIDATION_ERROR');
 
   // Try to create quest with invalid priority
   const invalidPriorityData = {
@@ -412,7 +413,8 @@ test('Database constraints should be enforced', async () => {
   expect(createPriorityResponse.statusCode).toBe(400);
   const priorityResult = JSON.parse(createPriorityResponse.payload);
   expect(priorityResult.success).toBe(false);
-  expect(priorityResult.error).toBe('Validation error');
+  expect(priorityResult.error.message).toBe('Invalid request body');
+  expect(priorityResult.error.code).toBe('VALIDATION_ERROR');
 });
 
 test('Cascade deletion should work correctly', async () => {

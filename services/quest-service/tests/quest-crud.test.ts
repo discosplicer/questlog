@@ -115,7 +115,8 @@ test('POST /quests should return 400 when userId is missing', async () => {
   expect(response.statusCode).toBe(400);
   const result = JSON.parse(response.payload);
   expect(result.success).toBe(false);
-  expect(result.error).toBe('userId query parameter is required');
+  expect(result.error.message).toBe('Invalid query parameters');
+  expect(result.error.field).toBe('userId');
 });
 
 test('POST /quests should return 404 when user does not exist', async () => {
@@ -133,7 +134,8 @@ test('POST /quests should return 404 when user does not exist', async () => {
   expect(response.statusCode).toBe(404);
   const result = JSON.parse(response.payload);
   expect(result.success).toBe(false);
-  expect(result.error).toBe('User not found');
+  expect(result.error.message).toContain('User with id');
+  expect(result.error.code).toBe('NOT_FOUND_ERROR');
 });
 
 test('POST /quests should return 400 for invalid title', async () => {
@@ -150,8 +152,8 @@ test('POST /quests should return 400 for invalid title', async () => {
   expect(response.statusCode).toBe(400);
   const result = JSON.parse(response.payload);
   expect(result.success).toBe(false);
-  expect(result.error).toBe('Validation error');
-  expect(result.details).toBeDefined();
+  expect(result.error.message).toBe('Invalid request body');
+  expect(result.error.field).toBe('title');
 });
 
 test('POST /quests should return 400 for invalid difficulty', async () => {
@@ -168,7 +170,8 @@ test('POST /quests should return 400 for invalid difficulty', async () => {
   expect(response.statusCode).toBe(400);
   const result = JSON.parse(response.payload);
   expect(result.success).toBe(false);
-  expect(result.error).toBe('Validation error');
+  expect(result.error.message).toBe('Invalid request body');
+  expect(result.error.field).toBe('difficulty');
 });
 
 test('POST /quests should return 400 for invalid estimated duration', async () => {
@@ -185,7 +188,8 @@ test('POST /quests should return 400 for invalid estimated duration', async () =
   expect(response.statusCode).toBe(400);
   const result = JSON.parse(response.payload);
   expect(result.success).toBe(false);
-  expect(result.error).toBe('Validation error');
+  expect(result.error.message).toBe('Invalid request body');
+  expect(result.error.field).toBe('estimatedDuration');
 });
 
 test('POST /quests should create quest with default priority when not provided', async () => {
@@ -240,7 +244,7 @@ test('GET /quests should return user quests with pagination', async () => {
   const response = await server.inject({
     method: 'GET',
     url: '/quests',
-    query: { userId, page: 1, limit: 10 },
+    query: { userId, page: '1', limit: '10' },
   });
 
   expect(response.statusCode).toBe(200);
@@ -268,7 +272,7 @@ test('GET /quests should return second page correctly', async () => {
   const response = await server.inject({
     method: 'GET',
     url: '/quests',
-    query: { userId, page: 2, limit: 10 },
+    query: { userId, page: '2', limit: '10' },
   });
 
   expect(response.statusCode).toBe(200);
@@ -294,8 +298,11 @@ test('GET /quests should filter by status', async () => {
 
   // Update one quest to ACTIVE status
   const quests = await testPrisma.quest.findMany({ where: { userId } });
+  if (quests.length < 2) {
+    throw new Error('Expected at least 2 quests to be created');
+  }
   await testPrisma.quest.update({
-    where: { id: quests[1].id },
+    where: { id: quests[1]!.id },
     data: { status: QuestStatus.ACTIVE },
   });
 
@@ -363,7 +370,8 @@ test('GET /quests should return 400 when userId is missing', async () => {
   expect(response.statusCode).toBe(400);
   const result = JSON.parse(response.payload);
   expect(result.success).toBe(false);
-  expect(result.error).toBe('userId query parameter is required');
+  expect(result.error.message).toBe('Invalid query parameters');
+  expect(result.error.field).toBe('userId');
 });
 
 test('GET /quests should handle invalid pagination parameters', async () => {
@@ -372,7 +380,7 @@ test('GET /quests should handle invalid pagination parameters', async () => {
   const response = await server.inject({
     method: 'GET',
     url: '/quests',
-    query: { userId, page: -1, limit: 1000 },
+    query: { userId, page: '-1', limit: '1000' },
   });
 
   expect(response.statusCode).toBe(200);
@@ -416,7 +424,8 @@ test('GET /quests/:id should return 404 for non-existent quest', async () => {
   expect(response.statusCode).toBe(404);
   const result = JSON.parse(response.payload);
   expect(result.success).toBe(false);
-  expect(result.error).toBe('Quest not found');
+  expect(result.error.message).toContain('Quest with id');
+  expect(result.error.code).toBe('NOT_FOUND_ERROR');
 });
 
 test('GET /quests/:id should return 404 for quest belonging to different user', async () => {
@@ -435,7 +444,8 @@ test('GET /quests/:id should return 404 for quest belonging to different user', 
   expect(response.statusCode).toBe(404);
   const result = JSON.parse(response.payload);
   expect(result.success).toBe(false);
-  expect(result.error).toBe('Quest not found');
+  expect(result.error.message).toContain('Quest with id');
+  expect(result.error.code).toBe('NOT_FOUND_ERROR');
 });
 
 test('GET /quests/:id should return 400 when userId is missing', async () => {
@@ -450,7 +460,8 @@ test('GET /quests/:id should return 400 when userId is missing', async () => {
   expect(response.statusCode).toBe(400);
   const result = JSON.parse(response.payload);
   expect(result.success).toBe(false);
-  expect(result.error).toBe('userId query parameter is required');
+  expect(result.error.message).toBe('Invalid query parameters');
+  expect(result.error.field).toBe('userId');
 });
 
 // ============================================================================
@@ -537,7 +548,8 @@ test('PUT /quests/:id should return 404 for non-existent quest', async () => {
   expect(response.statusCode).toBe(404);
   const result = JSON.parse(response.payload);
   expect(result.success).toBe(false);
-  expect(result.error).toBe('Quest not found');
+  expect(result.error.message).toContain('Quest with id');
+  expect(result.error.code).toBe('NOT_FOUND_ERROR');
 });
 
 test('PUT /quests/:id should return 400 for invalid data', async () => {
@@ -554,7 +566,8 @@ test('PUT /quests/:id should return 400 for invalid data', async () => {
   expect(response.statusCode).toBe(400);
   const result = JSON.parse(response.payload);
   expect(result.success).toBe(false);
-  expect(result.error).toBe('Validation error');
+  expect(result.error.message).toBe('Invalid request body');
+  expect(result.error.field).toBe('title');
 });
 
 test('PUT /quests/:id should return 400 when userId is missing', async () => {
@@ -570,7 +583,8 @@ test('PUT /quests/:id should return 400 when userId is missing', async () => {
   expect(response.statusCode).toBe(400);
   const result = JSON.parse(response.payload);
   expect(result.success).toBe(false);
-  expect(result.error).toBe('userId query parameter is required');
+  expect(result.error.message).toBe('Invalid query parameters');
+  expect(result.error.field).toBe('userId');
 });
 
 // ============================================================================
@@ -637,7 +651,8 @@ test('DELETE /quests/:id should return 404 for non-existent quest', async () => 
   expect(response.statusCode).toBe(404);
   const result = JSON.parse(response.payload);
   expect(result.success).toBe(false);
-  expect(result.error).toBe('Quest not found');
+  expect(result.error.message).toContain('Quest with id');
+  expect(result.error.code).toBe('NOT_FOUND_ERROR');
 });
 
 test('DELETE /quests/:id should return 400 when userId is missing', async () => {
@@ -652,7 +667,8 @@ test('DELETE /quests/:id should return 400 when userId is missing', async () => 
   expect(response.statusCode).toBe(400);
   const result = JSON.parse(response.payload);
   expect(result.success).toBe(false);
-  expect(result.error).toBe('userId query parameter is required');
+  expect(result.error.message).toBe('Invalid query parameters');
+  expect(result.error.field).toBe('userId');
 });
 
 // ============================================================================
